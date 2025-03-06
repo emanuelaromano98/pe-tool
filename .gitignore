@@ -1,0 +1,6 @@
+__pycache__
+.env
+/venv/
+output_files/output_prompts.txt
+output_files/reports.json
+output_files/report.pdf
