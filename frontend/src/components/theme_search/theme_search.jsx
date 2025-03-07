@@ -1,10 +1,14 @@
 import './theme_search.css'
 import { useState, useEffect } from 'react'
+import Select from 'react-select'
 
 function ThemeSearch() {
 
   const [industry, setIndustry] = useState("")
   const [topics, setTopics] = useState([])
+  const [fromYear, setFromYear] = useState(new Date().getFullYear())
+  const [toYear, setToYear] = useState(new Date().getFullYear())
+  // eslint-disable-next-line no-unused-vars
   const [topic, setTopic] = useState("")
   const [model, setModel] = useState("gpt-4o-2024-08-06")
   const [threshold, setThreshold] = useState(0.85)
@@ -15,7 +19,10 @@ function ThemeSearch() {
   const [formSubmittedClicked, setFormSubmittedClicked] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const [reportGenerated, setReportGenerated] = useState(false)
-  
+  const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false)
+  const currentYear = new Date().getFullYear()
+  const [selectedCountries, setSelectedCountries] = useState([])
+
   const baseAPIUrl = "http://localhost:8000"
   
 
@@ -32,6 +39,23 @@ function ThemeSearch() {
     (_, i) => Number((0.05 + (i * 0.05)).toFixed(2))
   )
 
+  useEffect(() => {
+    if (toYear < fromYear) {
+      setToYear(fromYear)
+    }
+  }, [fromYear, toYear])
+
+  const years = Array.from(
+    { length: currentYear - (currentYear-10) + 1 },
+    (_, i) => currentYear - i
+  )
+
+  const toYearOptions = Array.from(
+    { length: currentYear+10 - fromYear + 1 },
+    (_, i) => fromYear + i
+  ).sort((a, b) => b - a)
+
+  // eslint-disable-next-line no-unused-vars
   const handleAddTopic = (topic, e) => {
     e.preventDefault()
     if (error) {
@@ -47,6 +71,7 @@ function ThemeSearch() {
     }
   }
 
+  // eslint-disable-next-line no-unused-vars
   const handleRemoveTopic = (topic, e) => {
     e.preventDefault()
     setTopics(topics.filter((t) => t !== topic))
@@ -115,15 +140,30 @@ function ThemeSearch() {
     setError("")
     setStatus("")
     setSubmitError("")
+    setSelectedCountries([])
   }
 
+  const countryOptions = [
+    { value: 'us', label: 'United States' },
+    { value: 'uk', label: 'United Kingdom' },
+    { value: 'eu', label: 'European Union' }
+  ]
+
+  const handleCountryChange = (selectedOptions) => {
+    setSelectedCountries(selectedOptions || [])
+  }
 
   return (
     <div className="general-container">
       <div className="app-container">
-        <form>
+        <form 
+          autoComplete="off" 
+          method="get"
+          role="search"
+          data-type="search"
+        >
           <label>
-            <span>Industry Name</span>
+            <span>Theme Search</span>
             <input 
               style={
                 (industry.trim() === "" && formSubmittedClicked) 
@@ -133,77 +173,52 @@ function ThemeSearch() {
               type="text" 
               value={industry} 
               onChange={(e) => setIndustry(e.target.value)}
-              placeholder="e.g. Healthcare, Technology, Finance"
+              placeholder="e.g. Technology"
             />
           </label>
           <label>
-            <span>Topics</span>
-            <div className="topics-container">
-              <input 
-                style={
-                  (topics.length === 0 && formSubmittedClicked) 
-                    ? { border: "1px solid red" } 
-                    : {}
-                }
-                type="text" 
-                value={topic} 
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="Enter topic"
+          </label>
+          <div className="country-choice-section">
+            <span>Country Choice</span>
+              <Select
+                isMulti
+                options={countryOptions}
+                value={selectedCountries}
+                onChange={handleCountryChange}
+                className="country-select"
+                classNamePrefix="country-select"
+                placeholder="Select countries..."
+                name="country-search"
+                id="country-search"
+                inputId="country-search-input"
+                aria-label="Search and select countries"
+                role="searchbox"
+                data-type="search"
+                data-private="false"
               />
-              <button className="add-topic-button" onClick={(e) => handleAddTopic(topic, e)}>Add</button>
-            </div>
-            <div className="topics-list">
-              {topics.map((topic, index) => (
-                <span className="single-topic" key={index}>
-                  {topic}
-                  <button 
-                    className="remove-topic" 
-                    onClick={(e) => handleRemoveTopic(topic, e)}
-                    style={{ outline: 'none' }}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 6L6 18M6 6l12 12"/>
-                    </svg>
-                  </button>
-                </span>
-
-                ))}
-            </div>
-            {error && <p className="error">{error}</p>}
-          </label>
-          <label className="model-container">
-            <div className="model-container-inner">
-              <span>LLM Model</span>
-              <select
-                value={model}
-              onChange={(e) => setModel(e.target.value)}
-            >
-              <option value="gpt-4o-2024-08-06">GPT-4o</option>
-              <option value="gpt-4o-mini-2024-07-18">GPT-4o-mini</option>
-              <option value="o3-mini-2025-01-31">GPT-o3-mini</option>
-              <option value="gpt-4-turbo-2024-04-09">GPT-4-turbo</option>
-              </select>
-            </div>
-            <div className="model-container-inner">
-              <span>Filtering Model</span>
-              <select
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-            >
-                <option value="all-MiniLM-L6-v2">MiniLM</option>
-              </select>
-            </div>
-          </label>
+          </div>
           <label>
-            <span>Similarity Threshold</span>
-            <select
-              value={threshold}
-              onChange={(e) => setThreshold(parseFloat(e.target.value))}
-            >
-              {numbers.map((number) => (
-                <option value={number}>{number}</option>
-              ))}
-            </select>
+            <span>Time Period</span>
+            <div className="time-period-container">
+              <span>From</span>
+              <select 
+                value={fromYear}
+                onChange={(e) => setFromYear(parseInt(e.target.value))}
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+              <span>To</span>
+              <select 
+                value={toYear}
+                onChange={(e) => setToYear(parseInt(e.target.value))}
+              >
+                {toYearOptions.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
           </label>
           <label>
             <span>OpenAI API Key</span>
@@ -219,6 +234,46 @@ function ThemeSearch() {
                 placeholder="sk-..."
                 />
           </label>
+          <div className="advanced-settings-toggle" onClick={() => setIsAdvancedExpanded(!isAdvancedExpanded)}>
+            <span className={`arrow ${isAdvancedExpanded ? 'expanded' : ''}`}>⏵</span>
+            <span className="advanced-settings-toggle-text">Advanced Settings</span>
+          </div>
+          <div className={`advanced-container ${isAdvancedExpanded ? 'expanded' : ''}`}>
+            <label className="model-container">
+              <div className="model-container-inner">
+                <span>LLM Model</span>
+                <select
+                  value={model}
+                onChange={(e) => setModel(e.target.value)}
+              >
+                <option value="gpt-4o-2024-08-06">GPT-4o</option>
+                <option value="gpt-4o-mini-2024-07-18">GPT-4o-mini</option>
+                <option value="o3-mini-2025-01-31">GPT-o3-mini</option>
+                <option value="gpt-4-turbo-2024-04-09">GPT-4-turbo</option>
+                </select>
+              </div>
+              <div className="model-container-inner">
+                <span>Filtering Model</span>
+                <select
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+              >
+                  <option value="all-MiniLM-L6-v2">MiniLM</option>
+                </select>
+              </div>
+            </label>
+            <label>
+              <span>Similarity Threshold</span>
+              <select
+                value={threshold}
+                onChange={(e) => setThreshold(parseFloat(e.target.value))}
+              >
+                {numbers.map((number) => (
+                  <option value={number}>{number}</option>
+                ))}
+              </select>
+            </label>
+          </div>
           <button className="generate-report-button" onClick={(e) => handleSubmitForm(e)} type="submit">Generate Report</button>
           {submitError && <div className="error">{submitError}</div>}
         </form>  
