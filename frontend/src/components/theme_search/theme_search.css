@@ -83,6 +83,13 @@
   border: 1px solid #989898;
 }
 
+.general-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .app-container {
   display: flex;
   flex-direction: row;

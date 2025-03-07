@@ -1,12 +1,7 @@
-import ThemeSearch from './components/theme_search/theme_search';
+import AppRoutes from './router';
 import './App.css';
-
 function App() {
-  return (
-    <div>
-      <ThemeSearch />
-    </div>
-  );
+  return <AppRoutes />;
 }
 
 export default App;

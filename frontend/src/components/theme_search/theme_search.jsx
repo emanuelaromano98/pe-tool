@@ -235,7 +235,7 @@ function ThemeSearch() {
                 />
           </label>
           <div className="advanced-settings-toggle" onClick={() => setIsAdvancedExpanded(!isAdvancedExpanded)}>
-            <span className={`arrow ${isAdvancedExpanded ? 'expanded' : ''}`}>⏵</span>
+            <span className={`arrow ${isAdvancedExpanded ? 'expanded' : ''}`}>▶︎</span>
             <span className="advanced-settings-toggle-text">Advanced Settings</span>
           </div>
           <div className={`advanced-container ${isAdvancedExpanded ? 'expanded' : ''}`}>
