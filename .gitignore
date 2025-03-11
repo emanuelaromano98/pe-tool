@@ -2,3 +2,9 @@ __pycache__
 .env
 /venv/
 .DS_Store
+node_modules/
+frontend/node_modules/
+backend/__pycache__/
+backend/source_files/__pycache__/
+backend/output_files/.DS_Store
+frontend/.DS_Store
