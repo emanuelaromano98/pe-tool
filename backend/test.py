@@ -1,17 +1,15 @@
-import requests
-import os
-import dotenv
+import asyncio
+import websockets
 
-dotenv.load_dotenv()
+async def test_websocket():
+    uri = "ws://localhost:8000/ws/status"
+    try:
+        async with websockets.connect(uri) as websocket:
+            print("Connected to WebSocket")
+            while True:
+                message = await websocket.recv()
+                print(f"Received: {message}")
+    except Exception as e:
+        print(f"WebSocket connection failed: {e}")
 
-response = requests.post("http://localhost:8000/generate-report", json={
-    "model": "gpt-4o-mini",
-    "theme": "AI",
-    "industry": "Technology",
-    "countries": ["United States", "Canada"],
-    "from_year": "2020",
-    "to_year": "2024",
-    "api_key": os.getenv("OPENAI_API_KEY")
-})
-
-print(response.json())
+asyncio.run(test_websocket())

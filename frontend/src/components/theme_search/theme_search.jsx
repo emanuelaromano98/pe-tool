@@ -2,32 +2,29 @@ import './theme_search.css'
 import { useState, useEffect } from 'react'
 import Select from 'react-select'
 import SwitchPages from '../switch_pages/switch_pages'
+import useWebSocket from '../../useWebSocket'
+import { useSelector, useDispatch } from 'react-redux'
+import { setApiKey, resetApi } from '../../slices/mainSlice'
+
 function ThemeSearch() {
 
   const [theme, setTheme] = useState("")
   const [fromYear, setFromYear] = useState(new Date().getFullYear())
   const [toYear, setToYear] = useState(new Date().getFullYear())
   const [model, setModel] = useState("gpt-4o-mini")
-  const [apiKey, setApiKey] = useState("")
   const [formSubmitted, setFormSubmitted] = useState(false)
-  const [status, setStatus] = useState("");
   const [formSubmittedClicked, setFormSubmittedClicked] = useState(false)
   const [submitError, setSubmitError] = useState("")
   const [reportGenerated, setReportGenerated] = useState(false)
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false)
   const currentYear = new Date().getFullYear()
   const [selectedCountries, setSelectedCountries] = useState([])
+  const status = useWebSocket();
+  const apiKey = useSelector((state) => state.main.apiKey)
+  const dispatch = useDispatch()
+
 
   const baseAPIUrl = "http://localhost:8000"
-  
-
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8000/ws/status");
-    ws.onmessage = (event) => {
-        setStatus(event.data);
-    };
-    return () => ws.close();
-  }, []);
 
   useEffect(() => {
     if (toYear < fromYear) {
@@ -44,7 +41,6 @@ function ThemeSearch() {
     { length: currentYear+10 - fromYear + 1 },
     (_, i) => fromYear + i
   ).sort((a, b) => b - a)
-
 
   useEffect(() => {
     if (apiKey.trim() !== "" && 
@@ -66,7 +62,6 @@ function ThemeSearch() {
     }
   }, [apiKey, theme, formSubmittedClicked, selectedCountries, fromYear, toYear])
 
-
   const handleSubmitForm = async (e) => {
     e.preventDefault()
     setFormSubmittedClicked(true)
@@ -80,7 +75,7 @@ function ThemeSearch() {
     }
     setFormSubmitted(true)
     try {
-      const response = await fetch(`${baseAPIUrl}/generate-report`, {
+      const response = await fetch(`${baseAPIUrl}/generate-theme-report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,9 +84,9 @@ function ThemeSearch() {
           theme: theme.trim(),
           model,
           api_key: apiKey.trim(),
-          countries: selectedCountries,
-          from_year: fromYear,
-          to_year: toYear
+          countries: selectedCountries.map(country => country.label),
+          from_year: String(fromYear),
+          to_year: String(toYear)
         }),
       })
       const data = await response.json()
@@ -103,7 +98,7 @@ function ThemeSearch() {
   }
 
   const handleDownloadReport = (format) => {
-    const url = `${baseAPIUrl}/download-report?format=${format}`
+    const url = `${baseAPIUrl}/download-theme-report?format=${format}`
     window.open(url, '_blank')
   }
 
@@ -113,8 +108,7 @@ function ThemeSearch() {
     setFormSubmitted(false)
     setTheme("")
     setModel("gpt-4o-mini")
-    setApiKey("")
-    setStatus("")
+    dispatch(resetApi())
     setSubmitError("")
     setSelectedCountries([])
     setFromYear(new Date().getFullYear())
@@ -133,7 +127,7 @@ function ThemeSearch() {
 
   return (
     <div>          
-      <SwitchPages />
+      <SwitchPages activePage={"theme-search"} />
         <div className="general-container">
           <div className="app-container">
 
@@ -147,6 +141,8 @@ function ThemeSearch() {
             <label>
               <span>Theme Search</span>
               <input 
+                className="theme-search-input"
+                disabled={formSubmitted}
                 style={
                   (theme.trim() === "" && formSubmittedClicked) 
                     ? { border: "1px solid red" } 
@@ -162,11 +158,19 @@ function ThemeSearch() {
             </label>
             <div className="country-choice-section">
               <span>Country Choice</span>
+              <div className="country-select-container"
+                style={
+                  (selectedCountries.length === 0 && formSubmittedClicked) 
+                    ? { border: "1px solid red", borderRadius: "5px" } 
+                    : {}
+                }
+              >
                 <Select
                   isMulti
                   options={countryOptions}
                   value={selectedCountries}
                   onChange={handleCountryChange}
+                  isDisabled={formSubmitted}
                   className="country-select"
                   classNamePrefix="country-select"
                   placeholder="Select countries..."
@@ -178,12 +182,14 @@ function ThemeSearch() {
                   data-type="search"
                   data-private="false"
                 />
+              </div>
             </div>
             <label>
               <span>Time Period</span>
               <div className="time-period-container">
                 <span>From</span>
                 <select 
+                  disabled={formSubmitted}
                   value={fromYear}
                   onChange={(e) => setFromYear(parseInt(e.target.value))}
                 >
@@ -193,6 +199,7 @@ function ThemeSearch() {
                 </select>
                 <span>To</span>
                 <select 
+                  disabled={formSubmitted}
                   value={toYear}
                   onChange={(e) => setToYear(parseInt(e.target.value))}
                 >
@@ -205,16 +212,17 @@ function ThemeSearch() {
             <label>
               <span>OpenAI API Key</span>
               <input 
-                  style={
-                    (apiKey.trim() === "" && formSubmittedClicked) 
-                      ? { border: "1px solid red" } 
-                      : {}
-                  }
-                  type="password" 
-                  value={apiKey} 
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="sk-..."
-                  />
+                disabled={formSubmitted}
+                style={
+                  (apiKey.trim() === "" && formSubmittedClicked) 
+                    ? { border: "1px solid red" } 
+                    : {}
+                }
+                type="password" 
+                value={apiKey} 
+                onChange={(e) => dispatch(setApiKey(e.target.value))}
+                placeholder="sk-..."
+                />
             </label>
             <div className="advanced-settings-toggle" onClick={() => setIsAdvancedExpanded(!isAdvancedExpanded)}>
               <span className={`arrow ${isAdvancedExpanded ? 'expanded' : ''}`}>▶︎</span>
@@ -225,18 +233,26 @@ function ThemeSearch() {
                 <div className="model-container-inner">
                   <span>LLM Model</span>
                   <select
+                    disabled={formSubmitted}
                     value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                >
-                  <option value="gpt-4o-mini">GPT-4o-mini</option>
-                  <option value="o1">GPT-o1</option>
-                  <option value="gpt-4o">GPT-4o</option>
-                  <option value="o3-mini">GPT-o3-mini</option>
+                    onChange={(e) => setModel(e.target.value)}
+                  >
+                    <option value="gpt-4o-mini">GPT-4o-mini</option>
+                    <option value="o1">GPT-o1</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="o3-mini">GPT-o3-mini</option>
                   </select>
                 </div>
               </label>
             </div>
-            <button className="generate-report-button" onClick={(e) => handleSubmitForm(e)} type="submit">Generate Report</button>
+            <button 
+              disabled={formSubmitted}
+              className="generate-report-button" 
+              onClick={(e) => handleSubmitForm(e)} 
+              type="submit"
+            >
+              Generate Report
+            </button>
             {submitError && <div className="error">{submitError}</div>}
           </form>  
           <div className="report-status-container" style={{ display: 'flex', 
@@ -247,8 +263,8 @@ function ThemeSearch() {
             {formSubmitted && (
               <div className="report-container">
                 <h3>Report Generation Status</h3>
-                <div className="status-message">
-                  {status || "Initializing..."}
+                <div className="status-message" style={{ whiteSpace: 'pre-line' }}>
+                  {status || "Generating reports..."}
                 </div>
                 {reportGenerated && (
                   <div className="download-report-container-outer">
@@ -257,6 +273,7 @@ function ThemeSearch() {
                       <button onClick={() => handleDownloadReport("html")} className="download-report-button">HTML</button>
                       <button onClick={() => handleDownloadReport("pdf")} className="download-report-button">PDF</button>
                       <button onClick={() => handleDownloadReport("markdown")} className="download-report-button">Markdown</button>
+                      <button onClick={() => handleDownloadReport("txt")} className="download-report-button">Text</button>
                     </div>
                   </div>
                 )}

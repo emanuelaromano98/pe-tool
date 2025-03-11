@@ -5,10 +5,10 @@ import dotenv
 from pathlib import Path
 dotenv.load_dotenv()
 
-async def generate_report(prompts, topic, countries, from_year, to_year, client, model, send_status_update):
+async def theme_generate_report(prompts, client, model, send_status_update):
 
-    await send_status_update("Deep research in progress...")
-
+    await send_status_update("Running deep research...")
+    
     # First prompt
     messages = [
         {"role": "system", "content": "You are a Report Generation GPT. Generate a report on the given prompt. Remember the focus is on the {topic}."},
@@ -22,8 +22,8 @@ async def generate_report(prompts, topic, countries, from_year, to_year, client,
     )
     first_response_text = first_response.choices[0].message.content
 
-    await send_status_update("Summarizing report...")
-
+    await send_status_update("Summarizing...")
+    
     # Second prompt - add to conversation
     messages.extend([
         {"role": "assistant", "content": first_response_text},
@@ -45,10 +45,8 @@ async def generate_report(prompts, topic, countries, from_year, to_year, client,
         output_dir.mkdir(parents=True, exist_ok=True)
     
     # Write the file using proper path joining
-    output_file = output_dir / "report.md"
+    output_file = output_dir / "theme_report.md"
     with open(output_file, "w") as f:
         f.write(report_generation)
     
-    await send_status_update("Report generation complete...")
-
     return report_generation
