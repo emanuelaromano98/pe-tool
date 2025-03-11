@@ -1,7 +1,4 @@
 from source_files.report_generation import generate_report
-from source_files.markdown_generation import generate_markdown
-from source_files.prompt_generation import generate_prompt
-from source_files.text_similarity_filter import filter_reports
 from source_files.file_converter import convert_markdown_to_all_formats
 from dotenv import load_dotenv
 import os
@@ -10,11 +7,9 @@ from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, HTTPExcept
 from pydantic import BaseModel
 import glob
 import uvicorn
-import asyncio
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.routing import APIRoute
 from fastapi.responses import FileResponse
-
+from source_files.theme_prompts import generate_prompt_1, generate_prompt_2
 app = FastAPI()
 
 app.add_middleware(
@@ -72,61 +67,64 @@ def clear_output_files(pattern):
         if os.path.exists(file_path):
             os.remove(file_path)
 
-class IndustryRequest(BaseModel):
-    industry: str
-    topics: list[str]
-    model: str = "gpt-4o-2024-08-06"
-    threshold: float = 0.85
-    model_for_filtering: str = "all-MiniLM-L6-v2"
+class ThemeRequest(BaseModel):
+    theme: str
+    model: str
     api_key: str 
+    countries: list[str]
+    from_year: str
+    to_year: str
 
 @app.post("/generate-report")
-async def generate_industry_report(request: IndustryRequest):
-    clear_output_files("output_files/*")
+async def generate_theme_report(request: ThemeRequest):
+    clear_output_files("output_files/*")    
+    prompts = [generate_prompt_1(request.theme, request.countries, request.from_year, request.to_year), generate_prompt_2()]
     client = OpenAI(api_key=request.api_key)
+    model = request.model
+    theme = request.theme
+    countries = request.countries
+    from_year = request.from_year
+    to_year = request.to_year
     
-    await send_status_update("Starting report generation...")
+    await generate_report(prompts, theme, countries, from_year, to_year, client, model, send_status_update)
 
-    for topic in request.topics:
-        await send_status_update(f"Generating prompt for {topic}...")
-        generate_prompt(request.industry, topic, client, request.model)
-        
-        await send_status_update(f"Generating report for {topic}...")
-        await generate_report(topic, client, request.model, send_status_update)
 
-    await send_status_update("Filtering reports...")
-    filter_reports(model=request.model_for_filtering, threshold=request.threshold)
+
 
     try:
-        with open("backend/output_files/reports.json", "r") as f:
-            reports = f.read()
-        if not reports:
+        with open("output_files/report.md", "r") as f:
+            report = f.read()
+        if not report:
             await send_status_update("No reports generated")
             return {"message": "No reports generated"}
     except FileNotFoundError:
         await send_status_update("No reports generated")
         return {"message": "No reports generated"}
 
-    await send_status_update("Generating Markdown...")
-    generate_markdown(request.topics, reports)
-    
-    markdown_path = "backend/output_files/report.md"
-    html_success, pdf_success = convert_markdown_to_all_formats(markdown_path)
+    await send_status_update("Converting report to all formats...")
+            
+    markdown_path = "output_files/report.md"
+    html_success, pdf_success, txt_success = convert_markdown_to_all_formats(markdown_path)
     
     if not html_success:
         await send_status_update("Warning: HTML conversion failed")
     if not pdf_success:
         await send_status_update("Warning: PDF conversion failed")
+    if not txt_success:
+        await send_status_update("Warning: TXT conversion failed")
 
-    await send_status_update("Report generated successfully!")
+    await send_status_update("Successfully converted report to all formats.")
+
     return {"message": "Report generated successfully"}
+
 
 @app.get("/download-report")
 async def download_report(format: str):
     file_mapping = {
         "html": ("backend/output_files/report.html", "text/html"),
         "pdf": ("backend/output_files/report.pdf", "application/pdf"),
-        "markdown": ("backend/output_files/report.md", "text/markdown")
+        "markdown": ("backend/output_files/report.md", "text/markdown"),
+        "txt": ("backend/output_files/report.txt", "text/plain")
     }
     
     if format not in file_mapping:

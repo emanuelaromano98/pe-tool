@@ -1,50 +1,54 @@
 from pydantic import BaseModel
+from openai import OpenAI
 import os
-import json
+import dotenv
+from pathlib import Path
+dotenv.load_dotenv()
 
+async def generate_report(prompts, topic, countries, from_year, to_year, client, model, send_status_update):
 
-async def generate_report(topic, client, model, send_status_update):
-    class ReportGeneration(BaseModel):
-        report: str
-        sources: list[str]
+    await send_status_update("Deep research in progress...")
 
-    prompts = open("backend/output_files/output_prompts.txt", "r").readlines()
-    reports = []
-    for prompt in prompts:
-        prompt = prompt.strip()
-        if prompt and prompt[0].isdigit():
-            i = 0
-            while i < len(prompt) and (prompt[i].isdigit() or prompt[i] in '. '):
-                i += 1
-            prompt = "Question: " + prompt[i:].strip()
-        await send_status_update(f"Generating for prompt: {prompt.split(':')[1].strip()}")
-        completion = client.beta.chat.completions.parse(
-            model=model,
-            messages=[
-                {"role": "system", "content": "You are a Report Generation GPT. Generate a report on the given prompt. Remember the focus is on the {topic}."},
-                {"role": "user", "content": "Generate a report on the following prompt: " + prompt},
-            ],
-            response_format=ReportGeneration,
-        )
+    # First prompt
+    messages = [
+        {"role": "system", "content": "You are a Report Generation GPT. Generate a report on the given prompt. Remember the focus is on the {topic}."},
+        {"role": "user", "content": prompts[0]}
+    ]
 
-        report_generation = completion.choices[0].message.parsed
-        reports.append({
-            "topic": topic,
-            "prompt": prompt,
-            "report": report_generation.report,
-            "sources": report_generation.sources
-        })
+    # Get first response
+    first_response = client.chat.completions.create(
+        model=model,
+        messages=messages
+    )
+    first_response_text = first_response.choices[0].message.content
 
-    existing_reports = []
-    if os.path.exists("backend/output_files/reports.json"):
-        with open("backend/output_files/reports.json", "r") as f:
-            try:
-                existing_reports = json.load(f)
-            except json.JSONDecodeError:
-                existing_reports = []
+    await send_status_update("Summarizing report...")
 
-    all_reports = existing_reports + reports
+    # Second prompt - add to conversation
+    messages.extend([
+        {"role": "assistant", "content": first_response_text},
+        {"role": "user", "content": prompts[1]}
+    ])
 
-    with open("backend/output_files/reports.json", "w") as f:
-        json.dump(all_reports, f, indent=4)
+    # Get second response
+    second_response = client.chat.completions.create(
+        model=model,
+        messages=messages
+    )
 
+    report_generation = second_response.choices[0].message.content
+    current_dir = Path(__file__).parent.parent 
+    output_dir = current_dir / "output_files"
+    
+    # Create output directory if it doesn't exist
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Write the file using proper path joining
+    output_file = output_dir / "report.md"
+    with open(output_file, "w") as f:
+        f.write(report_generation)
+    
+    await send_status_update("Report generation complete...")
+
+    return report_generation
