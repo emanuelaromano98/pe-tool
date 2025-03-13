@@ -11,7 +11,7 @@ function ThemeSearch() {
   const [theme, setTheme] = useState("")
   const [fromYear, setFromYear] = useState(new Date().getFullYear())
   const [toYear, setToYear] = useState(new Date().getFullYear())
-  const [model, setModel] = useState("gpt-4o-mini")
+  const [model, setModel] = useState("o1")
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [formSubmittedClicked, setFormSubmittedClicked] = useState(false)
   const [submitError, setSubmitError] = useState("")
@@ -107,7 +107,7 @@ function ThemeSearch() {
     setFormSubmittedClicked(false)
     setFormSubmitted(false)
     setTheme("")
-    setModel("gpt-4o-mini")
+    setModel("o1")
     dispatch(resetApi())
     setSubmitError("")
     setSelectedCountries([])
@@ -133,7 +133,6 @@ function ThemeSearch() {
 
   return (
     <div>          
-       
         <div className="general-container">
           <div className="app-container">
             <div className="switch-pages-container-outer">
@@ -254,8 +253,8 @@ function ThemeSearch() {
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                   >
-                    <option value="gpt-4o-mini">GPT-4o-mini</option>
                     <option value="o1">GPT-o1</option>
+                    <option value="gpt-4o-mini">GPT-4o-mini</option>
                     <option value="gpt-4o">GPT-4o</option>
                     <option value="o3-mini">GPT-o3-mini</option>
                   </select>
@@ -278,13 +277,13 @@ function ThemeSearch() {
             alignItems: 'left', 
             padding: '10px', 
             borderRadius: '10px'}}>
-            {!formSubmitted && (
+            {formSubmitted && (
               <div className="report-container">
                 <h3>Report Generation Status</h3>
                 <div className="status-message" style={{ whiteSpace: 'pre-line' }}>
-                  {!status || "Generating reports..."}
+                  {status || "Generating reports..."}
                 </div>
-                {!reportGenerated && (
+                {reportGenerated && (
                   <div className="download-report-container-outer">
                     <h4>Download File</h4>
                     <div className="download-report-container-inner">
@@ -295,7 +294,7 @@ function ThemeSearch() {
                     </div>
                   </div>
                 )}
-                {!reportGenerated && (
+                {reportGenerated && (
                   <button 
                     onClick={() => handleReset()}
                     className="reset-button"

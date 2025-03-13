@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 
 function CimSummary() {
   const navigate = useNavigate();
-  const [model, setModel] = useState("gpt-4o-mini")
+  const [model, setModel] = useState("o1")
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [formSubmittedClicked, setFormSubmittedClicked] = useState(false)
   const [submitError, setSubmitError] = useState("")
@@ -34,7 +34,9 @@ function CimSummary() {
   const [fileName, setFileName] = useState("Upload File")
 
   const handleFileChange = (event) => {
-    setFileName(event.target.files[0] ? event.target.files[0].name : "Upload File")
+    if (event.target.files[0]) {
+      setFileName(event.target.files[0].name)
+    }
   }
 
   const apiKey = useSelector((state) => state.main.apiKey)
@@ -46,16 +48,18 @@ function CimSummary() {
   useEffect(() => {
     if (apiKey.trim() !== "" && 
         selectedAnalysis.length > 0 && 
+        fileName !== "Upload File" &&
         formSubmittedClicked) {
       setSubmitError("")
     } else if (formSubmittedClicked) {
       if (apiKey.trim() === "" || 
-      selectedAnalysis.length === 0 
+      selectedAnalysis.length === 0 ||
+      fileName === "Upload File"
     ) {
         setSubmitError("Please fill in all fields")
       }
     }
-  }, [apiKey, formSubmittedClicked, selectedAnalysis])
+  }, [apiKey, formSubmittedClicked, selectedAnalysis, fileName])
 
   const handleSubmitForm = async (e) => {
     e.preventDefault()
@@ -63,7 +67,7 @@ function CimSummary() {
 
     const fileInput = document.getElementById('fileInput');
     if (!fileInput.files[0] || apiKey.trim() === "" || selectedAnalysis.length === 0) {
-      setSubmitError("Please fill in all fields and select a file")
+      setSubmitError("Please fill in all fields")
       return
     }
 
@@ -103,7 +107,7 @@ function CimSummary() {
     setReportGenerated(false)
     setFormSubmittedClicked(false)
     setFormSubmitted(false)
-    setModel("gpt-4o-mini")
+    setModel("o1")
     dispatch(resetApi())
     setSubmitError("")
     setSelectedAnalysis([
@@ -144,9 +148,8 @@ function CimSummary() {
   }
 
   return (
-    <div className="cim-summary-container">    
+    <div>    
       <div className="general-container">
-
         <div className="app-container">
           <div className="switch-pages-container-outer">
             <div className="switch-pages-container">
@@ -171,14 +174,18 @@ function CimSummary() {
             <label className="file-upload-label">
               <span>Upload CIM Document</span>
               <div className="file-upload-container" style={{
-                backgroundColor: fileName !== "Upload File" && "white"
+                backgroundColor: fileName !== "Upload File" && "white",
+                border: (fileName === "Upload File" && formSubmittedClicked) ? "1px solid red" : "1px solid #ddd",
               }}>
-                <span className="file-upload-label-text">
+                <span className="file-upload-label-text" style={{
+                  color: fileName !== "Upload File" && "red"
+                }}>
                     {fileName}
                 </span>
                 <input 
                   onChange={handleFileChange}
                   type="file" 
+                  disabled={formSubmitted}
                   id="fileInput"
                   className="file-upload-input"
                   accept=".pdf"
@@ -244,8 +251,8 @@ function CimSummary() {
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                   >
-                    <option value="gpt-4o-mini">GPT-4o-mini</option>
                     <option value="o1">GPT-o1</option>
+                    <option value="gpt-4o-mini">GPT-4o-mini</option>
                     <option value="gpt-4o">GPT-4o</option>
                     <option value="o3-mini">GPT-o3-mini</option>
                   </select>
@@ -294,13 +301,13 @@ function CimSummary() {
             alignItems: 'left', 
             padding: '10px', 
             borderRadius: '10px'}}>
-            {!formSubmitted && (
+            {formSubmitted && (
               <div className="report-container">
                 <h3>Report Generation Status</h3>
                 <div className="status-message" style={{ whiteSpace: 'pre-line' }}>
-                  {!status || "Generating reports..."}
+                  {status || "Generating reports..."}
                 </div>
-                {!reportGenerated && (
+                {reportGenerated && (
                   <div className="download-report-container-outer">
                     <h4>Download File</h4>
                     <div className="download-report-container-inner">
@@ -311,7 +318,7 @@ function CimSummary() {
                     </div>
                   </div>
                 )}
-                {!reportGenerated && (
+                {reportGenerated && (
                   <button 
                     onClick={() => handleReset()}
                     className="reset-button"

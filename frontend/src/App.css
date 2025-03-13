@@ -1,7 +1,11 @@
 #root {
-    max-width: 1200px;
+    width: 100vw;
     margin: 0 auto;
     background: #f6f9fc;
+    position: fixed;
+    top: 10vh;
+    align-items: center;
+    justify-content: center;
   }
   
   body {
