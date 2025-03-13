@@ -1,10 +1,10 @@
 import './theme_search.css'
 import { useState, useEffect } from 'react'
 import Select from 'react-select'
-import SwitchPages from '../switch_pages/switch_pages'
 import useWebSocket from '../../useWebSocket'
 import { useSelector, useDispatch } from 'react-redux'
 import { setApiKey, resetApi } from '../../slices/mainSlice'
+import { useNavigate } from 'react-router-dom'
 
 function ThemeSearch() {
 
@@ -125,12 +125,29 @@ function ThemeSearch() {
     setSelectedCountries(selectedOptions || [])
   }
 
+  const navigate = useNavigate();
+
+  const handlePageChange = (page) => {
+    navigate(`/${page}`);
+  }
+
   return (
     <div>          
-      <SwitchPages activePage={"theme-search"} />
+       
         <div className="general-container">
           <div className="app-container">
-
+            <div className="switch-pages-container-outer">
+            <div className="switch-pages-container">
+            <button className={`switch-pages-item active`} >
+                Theme Search
+            </button>
+            <button 
+                className={`switch-pages-item`} 
+                onClick={() => handlePageChange("cim-summary")}
+            >
+                CIM Summary
+            </button>
+        </div>      
           <form 
             autoComplete="off" 
             method="get"
@@ -254,19 +271,20 @@ function ThemeSearch() {
               Generate Report
             </button>
             {submitError && <div className="error">{submitError}</div>}
-          </form>  
+          </form> 
+          </div>
           <div className="report-status-container" style={{ display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'left', 
             padding: '10px', 
             borderRadius: '10px'}}>
-            {formSubmitted && (
+            {!formSubmitted && (
               <div className="report-container">
                 <h3>Report Generation Status</h3>
                 <div className="status-message" style={{ whiteSpace: 'pre-line' }}>
-                  {status || "Generating reports..."}
+                  {!status || "Generating reports..."}
                 </div>
-                {reportGenerated && (
+                {!reportGenerated && (
                   <div className="download-report-container-outer">
                     <h4>Download File</h4>
                     <div className="download-report-container-inner">
@@ -277,17 +295,18 @@ function ThemeSearch() {
                     </div>
                   </div>
                 )}
+                {!reportGenerated && (
+                  <button 
+                    onClick={() => handleReset()}
+                    className="reset-button"
+                  style={{ alignSelf: 'flex-start', marginTop: '10px' }}
+                >
+                    Reset
+                  </button>
+                )}
                 </div>
             )} 
-            {reportGenerated && (
-              <button 
-                onClick={() => handleReset()}
-                className="reset-button"
-              style={{ alignSelf: 'flex-start', marginTop: '10px' }}
-            >
-                Reset
-              </button>
-            )}
+            
           </div>
         </div>
       </div>

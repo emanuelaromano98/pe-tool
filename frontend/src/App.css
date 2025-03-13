@@ -1,6 +1,7 @@
 #root {
     max-width: 1200px;
     margin: 0 auto;
+    background: #f6f9fc;
   }
   
   body {
@@ -23,8 +24,8 @@
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    margin: 0 auto;
-    width: 406px;
+    margin: 0 0;
+    min-width: 393.062px;
   }
   
   label {

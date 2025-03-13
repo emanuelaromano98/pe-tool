@@ -67,6 +67,7 @@
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
+  margin-top: 1rem;
 }
 
 .reset-button:hover {
@@ -95,7 +96,6 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  width: 100%;
   gap: 2rem;
 
 }
@@ -106,9 +106,7 @@
   padding-top: 0;
   border-radius: 8px;
   box-shadow: 0 2px 3px 0 rgb(0 0 0 / 0.1), 0 2px 2px -1px rgb(0 0 0 / 0.1);
-  max-width: 600px;
   margin: 0 auto;
-  width: 406px;
   height: 30%;
   padding-bottom: 3.5rem;
 }
@@ -124,19 +122,6 @@
   transition: border-color 0.1s ease;
 }
 
-.download-report-container-inner{
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  margin-bottom: 4rem;
-}
-
-.download-report-container-outer{
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-
-}
 
 .advanced-settings-toggle {
   cursor: pointer;
@@ -360,12 +345,11 @@ input[type="checkbox"]:focus {
 
 .theme-search-form {
   border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  border-top-right-radius: 8px;
   background: white;
   padding: 2rem;
   box-shadow: 0 2px 3px 0 rgb(0 0 0 / 0.1), 0 2px 2px -1px rgb(0 0 0 / 0.1);
   margin: 0 auto;
-  width: 406px;
 }
 
 .model-container-inner {

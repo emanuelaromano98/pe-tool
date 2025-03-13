@@ -1,9 +1,9 @@
-from backend.source_files.theme_report_generation import theme_generate_report
+from source_files.theme_report_generation import theme_generate_report
 from source_files.file_converter import convert_markdown_to_all_formats
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
-from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect, HTTPException, Form, File
 from pydantic import BaseModel
 import glob
 import uvicorn
@@ -16,6 +16,8 @@ from pathlib import Path
 from source_files.cim_prompts import generate_cim_prompt
 from source_files.cim_report_generation import cim_generate_report
 from fastapi import UploadFile
+from PyPDF2 import PdfReader
+import json
 
 app = FastAPI()
 
@@ -130,20 +132,23 @@ async def generate_theme_report(request: ThemeRequest):
 
     return {"message": "Report generated successfully"}
 
-class CimRequest(BaseModel):
-    model: str
-    filtering_model: str
-    threshold: float
-    api_key: str
-    file: UploadFile
-    analysis_type: list[int]
-
 @app.post("/generate-cim-report")
-async def generate_cim_report(request: CimRequest):
+async def generate_cim_report(
+    model: str = Form(...),
+    filtering_model: str = Form(...),
+    threshold: float = Form(...),
+    title_file: str = Form(...),
+    api_key: str = Form(...),
+    file: UploadFile = File(...),
+    analysis_type: str = Form(...)  # Will receive the JSON string from frontend
+):
+    analysis_types = json.loads(analysis_type)
+    
     clear_output_files("output_files/*")    
-    prompt = generate_cim_prompt(request.analysis_type)
-    client = OpenAI(api_key=request.api_key)
-    await cim_generate_report(prompt, request.file, client, request.model, send_status_update)
+    prompt = generate_cim_prompt(analysis_types)
+    client = OpenAI(api_key=api_key)
+    print(prompt)
+    await cim_generate_report(prompt, file, client, model, send_status_update, title_file)
     
     if not manager.active_connections:
         await asyncio.sleep(0.5)  
@@ -173,6 +178,16 @@ async def generate_cim_report(request: CimRequest):
 
     return {"message": "Report generated successfully"}
 
+async def handle_pdf_file(file_path):
+    try:
+        reader = PdfReader(file_path)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text()
+        return text
+    except Exception as e:
+        print(f"Error reading PDF: {e}")
+        return None
 
 @app.get("/download-theme-report")
 async def download_theme_report(format: str):
@@ -193,6 +208,14 @@ async def download_theme_report(format: str):
     file_path, content_type = file_mapping[format]
     
     try:
+        if format == "pdf":
+            # Make sure to set proper headers for PDF
+            return FileResponse(
+                path=file_path,
+                media_type="application/pdf",
+                filename=f"theme_report.pdf",
+                headers={"Content-Disposition": "attachment"}
+            )
         return FileResponse(
             path=file_path,
             media_type=content_type,

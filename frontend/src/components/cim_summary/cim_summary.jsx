@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import Select from 'react-select'
-import SwitchPages from '../switch_pages/switch_pages'
 import useWebSocket from '../../useWebSocket'
 import './cim_summary.css'
 import { useSelector, useDispatch } from 'react-redux'
 import { setApiKey, resetApi } from '../../slices/mainSlice'
+import { useNavigate } from 'react-router-dom'
 
 function CimSummary() {
-    
+  const navigate = useNavigate();
   const [model, setModel] = useState("gpt-4o-mini")
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [formSubmittedClicked, setFormSubmittedClicked] = useState(false)
@@ -16,6 +16,10 @@ function CimSummary() {
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false)
   const [filteringModel, setFilteringModel] = useState("all-MiniLM-L6-v2")
   const [threshold, setThreshold] = useState(0.85)
+
+  const handlePageChange = (page) => {
+    navigate(`/${page}`);
+  }
 
   const numbers = Array.from(
     { length: ((1.0 - 0.05) / 0.05) + 1 },
@@ -71,6 +75,7 @@ function CimSummary() {
       formData.append('filtering_model', filteringModel)
       formData.append('threshold', threshold.toString())
       formData.append('api_key', apiKey.trim())
+      formData.append('title_file', fileInput.files[0].name + "_" + Math.random().toString(36).substring(2, 15))
       formData.append('analysis_type', JSON.stringify(
         selectedAnalysis.map(analysis => analysis.value)
       ))
@@ -139,11 +144,22 @@ function CimSummary() {
   }
 
   return (
-    <div>          
-      <SwitchPages activePage={"cim-summary"} />
-        <div className="general-container">
-          <div className="app-container">
+    <div className="cim-summary-container">    
+      <div className="general-container">
 
+        <div className="app-container">
+          <div className="switch-pages-container-outer">
+            <div className="switch-pages-container">
+              <button 
+                  className={`switch-pages-item`} 
+                  onClick={() => handlePageChange("theme-search")}
+              >
+                  Theme Search
+              </button>
+              <button className={`switch-pages-item active`} >
+                  CIM Summary
+              </button>
+          </div> 
           <form 
             autoComplete="off" 
             method="get"
@@ -151,6 +167,7 @@ function CimSummary() {
             data-type="search"
             className="theme-search-form"
           >
+            
             <label className="file-upload-label">
               <span>Upload CIM Document</span>
               <div className="file-upload-container" style={{
@@ -164,7 +181,7 @@ function CimSummary() {
                   type="file" 
                   id="fileInput"
                   className="file-upload-input"
-                  accept=".pdf,.txt,.doc,.docx"
+                  accept=".pdf"
                   style={{ display: 'none' }}  
                 />
               </div>
@@ -271,18 +288,19 @@ function CimSummary() {
             </button>
             {submitError && <div className="error">{submitError}</div>}
           </form>  
+          </div>
           <div className="report-status-container" style={{ display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'left', 
             padding: '10px', 
             borderRadius: '10px'}}>
-            {formSubmitted && (
+            {!formSubmitted && (
               <div className="report-container">
                 <h3>Report Generation Status</h3>
                 <div className="status-message" style={{ whiteSpace: 'pre-line' }}>
-                  {status || "Generating reports..."}
+                  {!status || "Generating reports..."}
                 </div>
-                {reportGenerated && (
+                {!reportGenerated && (
                   <div className="download-report-container-outer">
                     <h4>Download File</h4>
                     <div className="download-report-container-inner">
@@ -293,17 +311,18 @@ function CimSummary() {
                     </div>
                   </div>
                 )}
+                {!reportGenerated && (
+                  <button 
+                    onClick={() => handleReset()}
+                    className="reset-button"
+                  style={{ alignSelf: 'flex-start', marginTop: '10px' }}
+                >
+                    Reset
+                  </button>
+                )}
                 </div>
             )} 
-            {reportGenerated && (
-              <button 
-                onClick={() => handleReset()}
-                className="reset-button"
-              style={{ alignSelf: 'flex-start', marginTop: '10px' }}
-            >
-                Reset
-              </button>
-            )}
+            
           </div>
         </div>
       </div>
