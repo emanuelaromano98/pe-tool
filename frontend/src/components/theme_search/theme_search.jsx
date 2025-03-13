@@ -24,7 +24,7 @@ function ThemeSearch() {
   const dispatch = useDispatch()
 
 
-  const baseAPIUrl = "http://34.60.164.32:8000"
+  const baseAPIUrl = "http://10.128.0.3:8000"
 
   useEffect(() => {
     if (toYear < fromYear) {
