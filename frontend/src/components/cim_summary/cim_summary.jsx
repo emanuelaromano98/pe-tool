@@ -177,9 +177,7 @@ function CimSummary() {
                 backgroundColor: fileName !== "Upload File" && "white",
                 border: (fileName === "Upload File" && formSubmittedClicked) ? "1px solid red" : "1px solid #ddd",
               }}>
-                <span className="file-upload-label-text" style={{
-                  color: fileName !== "Upload File" && "red"
-                }}>
+                <span className="file-upload-label-text">
                     {fileName}
                 </span>
                 <input 
