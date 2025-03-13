@@ -404,4 +404,3 @@ zenrows==1.3.2
 zipp==3.19.2
 zope.interface==6.4.post2
 zopfli==0.2.3.post1
-zstandard @ file:///Users/ec2-user/ci_py311_2/zstandard_1679338593428/work
