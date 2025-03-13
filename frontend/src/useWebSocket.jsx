@@ -11,7 +11,7 @@ function useWebSocket() {
     let ws;
 
     const connectWebSocket = () => {
-      ws = new WebSocket("ws://34.60.164.32:8000/ws/status");
+      ws = new WebSocket("ws://10.128.0.3:8000/ws/status");
 
       ws.onopen = () => {
         console.log("WebSocket Connected");
