@@ -1,5 +1,3 @@
-import asyncio
-import websockets
 import requests
 
 request = requests.post("http://34.60.164.32:8000/generate-theme-report", json={
