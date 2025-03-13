@@ -1,7 +1,7 @@
 import './theme_search.css'
 import { useState, useEffect } from 'react'
 import Select from 'react-select'
-import useWebSocket from '../../useWebSocket'
+// import useWebSocket from '../../useWebSocket'
 import { useSelector, useDispatch } from 'react-redux'
 import { setApiKey, resetApi } from '../../slices/mainSlice'
 import { useNavigate } from 'react-router-dom'
@@ -19,7 +19,8 @@ function ThemeSearch() {
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false)
   const currentYear = new Date().getFullYear()
   const [selectedCountries, setSelectedCountries] = useState([])
-  const status = useWebSocket();
+  // const status = useWebSocket();
+  const status = "Generating reports status..."
   const apiKey = useSelector((state) => state.main.apiKey)
   const dispatch = useDispatch()
 
