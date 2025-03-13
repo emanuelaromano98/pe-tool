@@ -82,8 +82,8 @@ async def send_status_update(message: str):
     print(f"Sending message: {message}")
     await manager.send_message(message)
 
-def clear_output_files(pattern):
-    files = glob.glob(pattern)
+def clear_output_files():
+    files = glob.glob(path+"/*")
     for file_path in files:
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -98,7 +98,7 @@ class ThemeRequest(BaseModel):
 
 @app.post("/generate-theme-report")
 async def generate_theme_report(request: ThemeRequest):
-    clear_output_files("output_files/*")    
+    clear_output_files()    
     prompts = [generate_prompt_1(request.theme, request.countries, request.from_year, request.to_year), generate_prompt_2()]
     client = OpenAI(api_key=request.api_key)
     model = request.model
@@ -111,7 +111,7 @@ async def generate_theme_report(request: ThemeRequest):
     await send_status_update("Starting report generation...")
     
     try:
-        with open("output_files/theme_report.md", "r") as f:
+        with open(path/"theme_report.md", "r") as f:
             report = f.read()
         if not report:
             await send_status_update("No reports generated")
@@ -120,7 +120,7 @@ async def generate_theme_report(request: ThemeRequest):
         await send_status_update("No reports generated")
         return {"message": "No reports generated"}
             
-    markdown_path = "output_files/theme_report.md"
+    markdown_path = path/"theme_report.md"
     html_success, pdf_success, txt_success = convert_markdown_to_all_formats(markdown_path)
     
     if not html_success:
