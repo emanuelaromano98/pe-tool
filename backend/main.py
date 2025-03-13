@@ -29,8 +29,6 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-path = Path(__file__).parent / "output_files"
-
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
@@ -82,8 +80,8 @@ async def send_status_update(message: str):
     print(f"Sending message: {message}")
     await manager.send_message(message)
 
-def clear_output_files():
-    files = glob.glob(path+"/*")
+def clear_output_files(pattern):
+    files = glob.glob(pattern)
     for file_path in files:
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -98,20 +96,20 @@ class ThemeRequest(BaseModel):
 
 @app.post("/generate-theme-report")
 async def generate_theme_report(request: ThemeRequest):
-    clear_output_files()    
-    prompts = [generate_prompt_1(request.theme, request.countries, request.from_year, request.to_year), generate_prompt_2()]
-    client = OpenAI(api_key=request.api_key)
-    model = request.model
-    await theme_generate_report(prompts, client, model, send_status_update)
+    # clear_output_files("output_files/*")    
+    # prompts = [generate_prompt_1(request.theme, request.countries, request.from_year, request.to_year), generate_prompt_2()]
+    # client = OpenAI(api_key=request.api_key)
+    # model = request.model
+    # await theme_generate_report(prompts, client, model, send_status_update)
     
-    # Wait a moment for WebSocket to be ready
-    if not manager.active_connections:
-        await asyncio.sleep(0.5)  # Give frontend time to connect
+    # # Wait a moment for WebSocket to be ready
+    # if not manager.active_connections:
+    #     await asyncio.sleep(0.5)  # Give frontend time to connect
         
-    await send_status_update("Starting report generation...")
+    # await send_status_update("Starting report generation...")
     
     try:
-        with open(path/"theme_report.md", "r") as f:
+        with open("output_files/theme_report.md", "r") as f:
             report = f.read()
         if not report:
             await send_status_update("No reports generated")
@@ -120,7 +118,7 @@ async def generate_theme_report(request: ThemeRequest):
         await send_status_update("No reports generated")
         return {"message": "No reports generated"}
             
-    markdown_path = path/"theme_report.md"
+    markdown_path = "output_files/theme_report.md"
     html_success, pdf_success, txt_success = convert_markdown_to_all_formats(markdown_path)
     
     if not html_success:
