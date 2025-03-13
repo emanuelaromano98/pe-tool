@@ -46,7 +46,9 @@ async def cim_generate_report(prompt, file, client, model, send_status_update, t
 
     run = client.beta.threads.runs.create_and_poll(thread_id=thread.id, assistant_id=assistant.id)
     messages = list(client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
+    print("\nmessages: ", messages)
     report_generation = messages[0].content[0].text.value
+    print("\nreport_generation: ", report_generation)
 
     # Write the output report
     output_file = output_dir / "cim_report.md"

@@ -18,7 +18,6 @@ from source_files.cim_report_generation import cim_generate_report
 from fastapi import UploadFile
 from PyPDF2 import PdfReader
 import json
-
 app = FastAPI()
 
 app.add_middleware(
@@ -97,17 +96,18 @@ class ThemeRequest(BaseModel):
 
 @app.post("/generate-theme-report")
 async def generate_theme_report(request: ThemeRequest):
-    clear_output_files("output_files/*")    
-    prompts = [generate_prompt_1(request.theme, request.countries, request.from_year, request.to_year), generate_prompt_2()]
-    client = OpenAI(api_key=request.api_key)
-    model = request.model
-    await theme_generate_report(prompts, client, model, send_status_update)
+    # clear_output_files("output_files/*")    
+    # prompts = [generate_prompt_1(request.theme, request.countries, request.from_year, request.to_year), generate_prompt_2()]
+    # client = OpenAI(api_key=request.api_key)
+    # model = request.model
+    # await theme_generate_report(prompts, client, model, send_status_update)
     
-    # Wait a moment for WebSocket to be ready
-    if not manager.active_connections:
-        await asyncio.sleep(0.5)  # Give frontend time to connect
+    # # Wait a moment for WebSocket to be ready
+    # if not manager.active_connections:
+    #     await asyncio.sleep(0.5)  # Give frontend time to connect
         
-    await send_status_update("Starting report generation...")
+    # await send_status_update("Starting report generation...")
+    
     try:
         with open("output_files/theme_report.md", "r") as f:
             report = f.read()
@@ -137,13 +137,12 @@ async def generate_cim_report(
     model: str = Form(...),
     filtering_model: str = Form(...),
     threshold: float = Form(...),
-    title_file: str = Form(...),
     api_key: str = Form(...),
     file: UploadFile = File(...),
-    analysis_type: str = Form(...)  # Will receive the JSON string from frontend
+    analysis_type: str = Form(...),
+    title_file: str = Form(...)
 ):
     analysis_types = json.loads(analysis_type)
-    
     clear_output_files("output_files/*")    
     prompt = generate_cim_prompt(analysis_types)
     client = OpenAI(api_key=api_key)
