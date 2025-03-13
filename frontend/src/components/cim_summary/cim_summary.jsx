@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Select from 'react-select'
-// import useWebSocket from '../../useWebSocket'
+import useWebSocket from '../../useWebSocket'
 import './cim_summary.css'
 import { useSelector, useDispatch } from 'react-redux'
 import { setApiKey, resetApi } from '../../slices/mainSlice'
@@ -30,8 +30,7 @@ function CimSummary() {
   const [selectedAnalysis, setSelectedAnalysis] = useState([
     { value: 'all', label: 'Select All' }
   ])
-  // const status = useWebSocket();
-  const status = "Generating reports status..."
+  const status = useWebSocket();
   const [fileName, setFileName] = useState("Upload File")
 
   const handleFileChange = (event) => {
@@ -44,7 +43,7 @@ function CimSummary() {
   const dispatch = useDispatch()
 
 
-  const baseAPIUrl = "http://34.60.164.32:8000"
+  const baseAPIUrl = "http://10.128.0.3:8000"
 
   useEffect(() => {
     if (apiKey.trim() !== "" && 
