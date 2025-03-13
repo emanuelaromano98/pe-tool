@@ -43,7 +43,7 @@ function CimSummary() {
   const dispatch = useDispatch()
 
 
-  const baseAPIUrl = "http://localhost:8000"
+  const baseAPIUrl = "http://34.60.164.32:8000"
 
   useEffect(() => {
     if (apiKey.trim() !== "" && 
