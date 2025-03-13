@@ -1,15 +1,13 @@
 import asyncio
 import websockets
+import requests
 
-async def test_websocket():
-    uri = "ws://localhost:8000/ws/status"
-    try:
-        async with websockets.connect(uri) as websocket:
-            print("Connected to WebSocket")
-            while True:
-                message = await websocket.recv()
-                print(f"Received: {message}")
-    except Exception as e:
-        print(f"WebSocket connection failed: {e}")
+request = requests.post("http://34.60.164.32:8000/generate-theme-report", json={
+    "theme": "AI",
+    "countries": ["US", "CA", "GB"],
+    "from_year": 2020,
+    "to_year": 2026,
+    "api_key": "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"
+})
 
-asyncio.run(test_websocket())
+print(request.json())
