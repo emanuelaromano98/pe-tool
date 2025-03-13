@@ -4,8 +4,10 @@ from pathlib import Path
 from typing import Optional
 from weasyprint import HTML
 
+path = Path(__file__).parent.parent / "output_files"
+
 def convert_markdown_to_html(input_file: str, output_file: Optional[str] = None) -> str:
-    backend_dir = Path(__file__).parent.parent / "output_files"
+    backend_dir = path
     
     input_file = str(backend_dir / Path(input_file).name)
     
@@ -29,7 +31,7 @@ def convert_markdown_to_html(input_file: str, output_file: Optional[str] = None)
         raise RuntimeError(f"Failed to convert {input_file} to HTML: {e}")
 
 def convert_markdown_to_txt(input_file: str, output_file: Optional[str] = None) -> str:
-    backend_dir = Path(__file__).parent.parent / "output_files"
+    backend_dir = path
     
     input_file = str(backend_dir / Path(input_file).name)
     
@@ -53,7 +55,7 @@ def convert_markdown_to_txt(input_file: str, output_file: Optional[str] = None) 
         raise RuntimeError(f"Failed to convert {input_file} to TXT: {e}")
 
 def convert_html_to_pdf(html_file: str, output_pdf: str) -> bool:
-    backend_dir = Path(__file__).parent.parent / "output_files"
+    backend_dir = path
     
     html_file = str(backend_dir / Path(html_file).name)
     output_pdf = str(backend_dir / Path(output_pdf).name)
@@ -72,7 +74,7 @@ def convert_html_to_pdf(html_file: str, output_pdf: str) -> bool:
         return False
 
 def convert_markdown_to_all_formats(markdown_path: str):
-    backend_dir = Path(__file__).parent.parent / "output_files"
+    backend_dir = path
     
     markdown_file = str(backend_dir / Path(markdown_path).name)
     html_path = str(Path(markdown_file).with_suffix('.html'))
