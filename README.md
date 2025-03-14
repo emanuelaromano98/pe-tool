@@ -1,13 +1,31 @@
 # Market Research Report Generator
 
-This application is an AI-powered market research report generator that creates detailed reports based on specified industries and topics.
+This application is an AI-powered platform for generating market research reports and analyzing Confidential Information Memorandums (CIMs). It leverages OpenAI's models to create detailed analyses based on user specifications.
 
 ## Features
-- Generates comprehensive market research reports using OpenAI
-- Filters and processes reports for relevance
-- Outputs results in multiple formats (JSON, Markdown, Jupyter Notebook)
-- Handles multiple topics per industry
-- Includes similarity-based content filtering
+
+### Theme-Based Market Research
+- Search and analyze market themes with specific geographic focus (US, UK, EU)
+- Set custom time periods for analysis
+- Generate comprehensive market research reports using various OpenAI models
+- Download reports in multiple formats (HTML, PDF, Markdown, Text)
+
+### CIM Summary Analysis
+- Upload and analyze Confidential Information Memorandums (PDFs)
+- Select specific analysis types:
+  - Founding & Headquarters
+  - Business Overview
+  - Customer Base
+  - Value Proposition
+  - Customer Concentration
+  - Geographic Breakdown
+  - Key Assets
+  - Employee Overview
+  - Financial Breakdown
+- Advanced filtering options:
+  - Multiple embedding models (MiniLM, T5 Base, ALBERT, MPNet-QA)
+  - Adjustable similarity thresholds for content relevance
+- Download processed reports in multiple formats (HTML, PDF, Markdown, Text)
 
 ## Setup
 
@@ -18,24 +36,25 @@ This application is an AI-powered market research report generator that creates 
 pip install -r requirements.txt
 ```
 
-3. Create a `.env` file in the root directory and add your OpenAI API key:
+## Usage Backend
 
 ```bash
-OPENAI_API_KEY=<your_openai_api_key>
-```
-
-## Usage
-
-```bash
+cd backend
 python main.py
 ```
 
+## Usage Frontend
+
+```bash
+cd frontend
+npm start
+```
+
+
 ## Output
 
-The application will generate a report in the following formats:
-- `reports.json`: JSON file containing all reports
-- `report.ipynb`: Jupyter Notebook file with detailed report
-- `report.md`: Markdown file with report content
-
-
-
+The application will generate reports in the following formats:
+- HTML: Interactive web-based reports
+- PDF: Formatted documents for sharing
+- Markdown: Text-based format with formatting
+- Text: Plain text version of the reports
