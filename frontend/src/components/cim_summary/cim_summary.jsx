@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Select from 'react-select'
-// import useWebSocket from '../../useWebSocket'
+import useWebSocket from '../../useWebSocket'
 import './cim_summary.css'
 import { useSelector, useDispatch } from 'react-redux'
 import { setApiKey, resetApi } from '../../slices/mainSlice'
@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 
 function CimSummary() {
   const navigate = useNavigate();
-  const [model, setModel] = useState("o1")
+  const [model, setModel] = useState("gpt-4o-mini")
   const [formSubmitted, setFormSubmitted] = useState(false)
   const [formSubmittedClicked, setFormSubmittedClicked] = useState(false)
   const [submitError, setSubmitError] = useState("")
@@ -30,8 +30,8 @@ function CimSummary() {
   const [selectedAnalysis, setSelectedAnalysis] = useState([
     { value: 'all', label: 'Select All' }
   ])
-  // const status = useWebSocket();
-  const status = "Generating reports status..."
+  const status = useWebSocket();
+  // const status = "Generating reports status..."
   const [fileName, setFileName] = useState("Upload File")
 
   const handleFileChange = (event) => {
@@ -44,7 +44,7 @@ function CimSummary() {
   const dispatch = useDispatch()
 
 
-  const baseAPIUrl = "http://10.128.0.3:8000"
+  const baseAPIUrl = "http://localhost:8000"
 
   useEffect(() => {
     if (apiKey.trim() !== "" && 
@@ -80,7 +80,7 @@ function CimSummary() {
       formData.append('filtering_model', filteringModel)
       formData.append('threshold', threshold.toString())
       formData.append('api_key', apiKey.trim())
-      formData.append('title_file', fileInput.files[0].name + "_" + Math.random().toString(36).substring(2, 15))
+      formData.append('title_file', fileInput.files[0].name.split('.')[0] + "_" + Math.random().toString(36).substring(2, 15))
       formData.append('analysis_type', JSON.stringify(
         selectedAnalysis.map(analysis => analysis.value)
       ))
@@ -100,7 +100,7 @@ function CimSummary() {
   }
 
   const handleDownloadReport = (format) => {
-    const url = `${baseAPIUrl}/download-report?format=${format}`
+    const url = `${baseAPIUrl}/download-cim-report?format=${format}`
     window.open(url, '_blank')
   }
 
@@ -158,7 +158,7 @@ function CimSummary() {
                   className={`switch-pages-item`} 
                   onClick={() => handlePageChange("theme-search")}
               >
-                  Theme Search
+                  New Themes
               </button>
               <button className={`switch-pages-item active`} >
                   CIM Summary
@@ -304,7 +304,7 @@ function CimSummary() {
               <div className="report-container">
                 <h3>Report Generation Status</h3>
                 <div className="status-message" style={{ whiteSpace: 'pre-line' }}>
-                  {status || "Generating reports..."}
+                  {status || "Generating reports ..."}
                 </div>
                 {reportGenerated && (
                   <div className="download-report-container-outer">

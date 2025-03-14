@@ -7,7 +7,7 @@ dotenv.load_dotenv()
 
 async def theme_generate_report(prompts, client, model, send_status_update):
 
-    await send_status_update("Running deep research...")
+    await send_status_update("Running Deep Research ...")
     
     # First prompt
     messages = [
@@ -22,7 +22,7 @@ async def theme_generate_report(prompts, client, model, send_status_update):
     )
     first_response_text = first_response.choices[0].message.content
 
-    await send_status_update("Summarizing...")
+    await send_status_update("Summarizing ...")
     
     # Second prompt - add to conversation
     messages.extend([

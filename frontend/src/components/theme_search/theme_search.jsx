@@ -1,7 +1,7 @@
 import './theme_search.css'
 import { useState, useEffect } from 'react'
 import Select from 'react-select'
-// import useWebSocket from '../../useWebSocket'
+import useWebSocket from '../../useWebSocket'
 import { useSelector, useDispatch } from 'react-redux'
 import { setApiKey, resetApi } from '../../slices/mainSlice'
 import { useNavigate } from 'react-router-dom'
@@ -19,13 +19,12 @@ function ThemeSearch() {
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false)
   const currentYear = new Date().getFullYear()
   const [selectedCountries, setSelectedCountries] = useState([])
-  // const status = useWebSocket();
-  const status = "Generating reports status..."
+  const status = useWebSocket();
   const apiKey = useSelector((state) => state.main.apiKey)
   const dispatch = useDispatch()
 
 
-  const baseAPIUrl = "http://10.128.0.3:8000"
+  const baseAPIUrl = "http://localhost:8000"
 
   useEffect(() => {
     if (toYear < fromYear) {
@@ -139,7 +138,7 @@ function ThemeSearch() {
             <div className="switch-pages-container-outer">
             <div className="switch-pages-container">
             <button className={`switch-pages-item active`} >
-                Theme Search
+                New Themes
             </button>
             <button 
                 className={`switch-pages-item`} 
@@ -156,7 +155,7 @@ function ThemeSearch() {
             className="theme-search-form"
           >
             <label>
-              <span>Theme Search</span>
+              <span>Theme Title</span>
               <input 
                 className="theme-search-input"
                 disabled={formSubmitted}
@@ -174,7 +173,7 @@ function ThemeSearch() {
             <label>
             </label>
             <div className="country-choice-section">
-              <span>Country Choice</span>
+              <span>Geographic Focus</span>
               <div className="country-select-container"
                 style={
                   (selectedCountries.length === 0 && formSubmittedClicked) 
@@ -282,7 +281,7 @@ function ThemeSearch() {
               <div className="report-container">
                 <h3>Report Generation Status</h3>
                 <div className="status-message" style={{ whiteSpace: 'pre-line' }}>
-                  {status || "Generating reports..."}
+                  {status || "Generating reports ..."}
                 </div>
                 {reportGenerated && (
                   <div className="download-report-container-outer">

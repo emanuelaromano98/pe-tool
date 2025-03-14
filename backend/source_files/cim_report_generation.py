@@ -6,7 +6,7 @@ from pathlib import Path
 dotenv.load_dotenv()
 
 async def cim_generate_report(prompt, file, client, model, send_status_update, title_file):
-    await send_status_update("Searching document for information...")
+    await send_status_update("Searching document for information ...")
 
     # Create a temporary file to store the uploaded content
     file_content = await file.read()
@@ -46,7 +46,7 @@ async def cim_generate_report(prompt, file, client, model, send_status_update, t
 
     run = client.beta.threads.runs.create_and_poll(thread_id=thread.id, assistant_id=assistant.id)
     messages = list(client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
-    print("\nmessages: ", messages)
+    print("\temp_pdf: ", temp_pdf)
     report_generation = messages[0].content[0].text.value
     print("\nreport_generation: ", report_generation)
 
