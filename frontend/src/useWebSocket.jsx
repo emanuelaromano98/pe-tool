@@ -8,6 +8,7 @@ function useWebSocket() {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    
     console.log("useWebSocket hook called");
     let ws;
 
@@ -17,7 +18,7 @@ function useWebSocket() {
       ws.onopen = () => {
         console.log("WebSocket Connected");
         setIsConnected(true);
-        ws.send("ready"); // Send ready signal to server
+        ws.send("ready");
       };
 
       ws.onmessage = (event) => {
