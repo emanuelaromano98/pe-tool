@@ -13,7 +13,7 @@ from source_files.theme_prompts import generate_prompt_1, generate_prompt_2
 import time
 import asyncio
 from pathlib import Path
-from source_files.cim_prompts import generate_cim_prompt
+from source_files.cim_prompts import generate_cim_prompt_part_1_and_2, generate_cim_prompt_part_3, generate_cim_prompt_part_4
 from source_files.cim_report_generation import cim_generate_report
 from fastapi import UploadFile
 from PyPDF2 import PdfReader
@@ -145,38 +145,34 @@ async def generate_cim_report(
 ):
     analysis_types = json.loads(analysis_type)
     clear_output_files("output_files/*")    
-    prompt = generate_cim_prompt(analysis_types)
-    client = OpenAI(api_key=api_key)
-    print(prompt)
-    await cim_generate_report(prompt, file, client, model, send_status_update, title_file)
     
-    if not manager.active_connections:
-        await asyncio.sleep(0.5)  
-        
+    # First update
     await send_status_update("Starting report generation...")
-    try:
-        with open("output_files/cim_report.md", "r") as f:
-            report = f.read()
-        if not report:
-            await send_status_update("No reports generated")
-            return {"message": "No reports generated"}
-    except FileNotFoundError:
-        await send_status_update("No reports generated")
-        return {"message": "No reports generated"}
-            
-    markdown_path = "output_files/cim_report.md"
-    html_success, pdf_success, txt_success = convert_markdown_to_all_formats(markdown_path)
     
-    if not html_success:
-        await send_status_update("Warning: HTML conversion failed")
-    if not pdf_success:
-        await send_status_update("Warning: PDF conversion failed")
-    if not txt_success:
-        await send_status_update("Warning: TXT conversion failed")
+    prompt_1_and_2 = generate_cim_prompt_part_1_and_2(analysis_types)
+    prompt_3 = generate_cim_prompt_part_3()
+    prompt_4 = generate_cim_prompt_part_4()
+    client = OpenAI(api_key=api_key)
+    
+    try:
+        await cim_generate_report(prompt_1_and_2, prompt_3, prompt_4, file, client, model, send_status_update, title_file)
+        
+        # Processing the report only if generation was successful
+        markdown_path = "output_files/cim_report.md"
+        html_success, pdf_success, txt_success = convert_markdown_to_all_formats(markdown_path)
+        
+        if not html_success:
+            await send_status_update("Warning: HTML conversion failed")
+        if not pdf_success:
+            await send_status_update("Warning: PDF conversion failed")
+        if not txt_success:
+            await send_status_update("Warning: TXT conversion failed")
 
-    await send_status_update("Successfully converted report to all formats.")
-
-    return {"message": "Report generated successfully"}
+        await send_status_update("Successfully converted report to all formats.")
+        return {"message": "Report generated successfully"}
+    except Exception as e:
+        await send_status_update(f"Error generating report: {str(e)}")
+        return {"message": f"Error: {str(e)}"}
 
 async def handle_pdf_file(file_path):
     try:
@@ -253,4 +249,4 @@ async def download_cim_report(format: str):
         raise HTTPException(status_code=404, detail=f"Report file in {format} format not found")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -5,9 +5,9 @@ import useWebSocket from '../../useWebSocket'
 import { useSelector, useDispatch } from 'react-redux'
 import { setApiKey, resetApi } from '../../slices/mainSlice'
 import { useNavigate } from 'react-router-dom'
+import { API_URL } from '../../../api'
 
 function ThemeSearch() {
-
   const [theme, setTheme] = useState("")
   const [fromYear, setFromYear] = useState(new Date().getFullYear())
   const [toYear, setToYear] = useState(new Date().getFullYear())
@@ -23,8 +23,12 @@ function ThemeSearch() {
   const apiKey = useSelector((state) => state.main.apiKey)
   const dispatch = useDispatch()
 
+  useEffect(() => {
+    console.log("API_URL", API_URL)
+  }, [])
 
-  const baseAPIUrl = "http://34.72.178.89:8000"
+
+  const baseAPIUrl = API_URL
 
   useEffect(() => {
     if (toYear < fromYear) {

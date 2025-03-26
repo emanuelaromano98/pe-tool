@@ -55,7 +55,10 @@ points = {
     "eo": "8.	Employee Overview – Provide a brief description of the company’s workforce.",
     "fb": "9.	Financial Breakdown – Include revenue by service, end market, and customer."}
 
-def generate_cim_prompt(analysis_types):
+
+
+
+def generate_cim_prompt_part_1_and_2(analysis_types):
     prompt = prompt_1
     if "all" in analysis_types:
         for key in points.keys():
@@ -65,3 +68,93 @@ def generate_cim_prompt(analysis_types):
             if key in analysis_types:
                 prompt += "\n" + points[key] + "\n"
     return prompt
+
+
+prompt_3 = """
+I'm the managing partner at Warren Equity Partners with deep expertise in due diligence, I'm evaluating this company for potential investment as a platform. My goal is to systematically assess the company’s differentiation and scalability to determine its potential for long-term growth and competitive advantage. Before we begin the analysis, I will provide the necessary sequential prompts.
+
+Prompt Step 1: Core Differentiation & Market Position
+- Title this section, 'Core Differentiation & Market Position'.
+- Objective: Assess the company’s unique strengths and long-term competitive advantage.
+- Key Questions:
+    - What are the key differentiators compared to competitors?
+    - Is differentiation based on technology, customer relationships, regulatory advantages, operational excellence, or pricing power?
+    - How defensible are these differentiators, and what risks could erode them?
+    - What barriers to entry exist for new competitors?
+    - Does the company have proprietary IP, exclusive partnerships, or unique capabilities that create a lasting advantage?
+- Risk Mitigation Strategies:
+    - How can differentiation be reinforced or expanded to sustain long-term value?
+    - Are there any emerging competitors, regulatory shifts, or technology changes that could impact defensibility?
+    - What contingency plans exist if key differentiators weaken?
+- For each independent analysis, label it as 'WEP.ai analysis'.
+
+Prompt Step 2: Market Scalability & Addressable Market Expansion
+- Title this section, 'Market Scalability & Addressable Market Expansion'.
+- Objective: Evaluate the growth potential of the company in its market.
+- Key Questions:
+    - What is the Total Addressable Market (TAM), and how much is realistically accessible?
+    - Does the company have a clear strategy for market share expansion (geographic, customer segments, product diversification)?
+    - How scalable is the business model, cost structure, and operations?
+    - What constraints (e.g., supply chain, regulatory, capital intensity) could hinder growth?
+    - How well does the company leverage technology and automation to scale efficiently?
+- Risk Mitigation Strategy:
+    - What alternative expansion paths exist if the primary growth strategy fails?
+    - How resilient is the company’s growth plan to macroeconomic downturns or industry shifts?
+    - Are there contingency plans for scalability challenges, such as talent acquisition or production constraints?
+- For each independent analysis, label it as 'WEP.ai analysis'.
+
+Prompt Step 3: Competitive Landscape & Defensibility
+- Title this section, 'Competitive Landscape & Defensibility'.
+- Objective: Understand the competitive forces shaping the company’s position.
+- Key Questions:
+    - Who are the primary competitors, and how does this company differentiate itself?
+    - Are there signs of pricing pressure or industry commoditization?
+    - How strong is customer loyalty and retention?
+    - Does the company benefit from high switching costs, network effects, or other defensibility factors?
+- Risk Mitigation Strategy:
+    - What strategic defenses can be built to maintain a competitive edge?
+    - If pricing pressure increases, how can the company preserve margins and value proposition?
+    - Are there acquisition or partnership opportunities to strengthen market positioning?
+- For each independent analysis, label it as 'WEP.ai analysis'.
+
+Prompt Step 4: Financial & Operational Scalability
+- Title this section, 'Financial & Operational Scalability'.
+- Objective: Assess financial sustainability and operational risks.
+- Key Questions:
+    - How do unit economics evolve with scale?
+    - Are margins improving, stable, or declining as the company grows?
+    - What is the CapEx vs. OpEx intensity of scaling the business?
+    - Are there hidden risks or operational bottlenecks that could limit growth?
+    - How does the working capital cycle change with expansion?
+- Risk Mitigation Strategy:
+    - What financial adjustments or operational efficiencies can enhance scalability?
+    - Are there early warning signs of margin compression or capital inefficiencies?
+    - How can the company improve capital deployment to maximize return on investment?
+- For each independent analysis, label it as 'WEP.ai analysis'.
+"""
+
+def generate_cim_prompt_part_3():
+    return prompt_3
+
+
+prompt_4 = """
+Title this section, 'Key Risks & Mitigation Strategy'.
+- Objective: Identify key risks and propose targeted mitigation strategies.
+- Key Risks to Assess:
+    - Regulatory Risks: How could tariffs, compliance shifts, or industry regulations impact operations?
+    - Macroeconomic Risks: Are there interest rate, inflation, or geopolitical factors that could affect the business?
+    - Competitive Risks: Could new entrants or shifting customer preferences erode market share?
+    - Operational Risks: Are there supply chain vulnerabilities, talent shortages, or execution challenges?
+    - Financial Risks:
+        - What assumptions in financial projections need further validation?
+        - Revenue Predictability & Contractual Stability: Evaluate the proportion of upfront vs. recurring revenue, customer concentration risks, and pricing elasticity.
+        - Management’s Forward Projections & Validation: Analyze the reasonableness of revenue growth forecasts, margin expansion expectations, and new market expansion risks.
+- Risk Mitigation Strategy:
+    - What proactive strategies can be implemented to reduce exposure?
+    - Are there insurance, hedging, or strategic diversification tactics that would protect the business?
+    - What contingency planning exists for worst-case scenarios?
+- For each independent analysis, label it as 'WEP.ai analysis'.
+"""
+
+def generate_cim_prompt_part_4():
+    return prompt_4

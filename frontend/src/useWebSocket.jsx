@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { WS_URL } from "../api";
 
 function useWebSocket() {
   const [status, setStatus] = useState("");
@@ -11,7 +12,7 @@ function useWebSocket() {
     let ws;
 
     const connectWebSocket = () => {
-      ws = new WebSocket("ws://34.72.178.89:8000/ws/status");
+      ws = new WebSocket(WS_URL);
 
       ws.onopen = () => {
         console.log("WebSocket Connected");
@@ -27,7 +28,6 @@ function useWebSocket() {
       ws.onerror = (error) => {
         console.error("WebSocket error:", error);
         setIsConnected(false);
-        ws.close();
       };
 
       ws.onclose = () => {

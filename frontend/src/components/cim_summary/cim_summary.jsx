@@ -3,10 +3,14 @@ import Select from 'react-select'
 import useWebSocket from '../../useWebSocket'
 import './cim_summary.css'
 import { useSelector, useDispatch } from 'react-redux'
+
+// eslint-disable-next-line no-unused-vars
 import { setApiKey, resetApi } from '../../slices/mainSlice'
 import { useNavigate } from 'react-router-dom'
+import { API_URL } from '../../../api'
 
 function CimSummary() {
+
   const navigate = useNavigate();
   const [model, setModel] = useState("gpt-4o-mini")
   const [formSubmitted, setFormSubmitted] = useState(false)
@@ -16,6 +20,12 @@ function CimSummary() {
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false)
   const [filteringModel, setFilteringModel] = useState("all-MiniLM-L6-v2")
   const [threshold, setThreshold] = useState(0.85)
+
+  useEffect(() => {
+    console.log("API_URL", API_URL)
+  }, [])
+
+
 
   const handlePageChange = (page) => {
     navigate(`/${page}`);
@@ -44,7 +54,7 @@ function CimSummary() {
   const dispatch = useDispatch()
 
 
-  const baseAPIUrl = "http://34.72.178.89:8000"
+  const baseAPIUrl = API_URL
 
   useEffect(() => {
     if (apiKey.trim() !== "" && 
@@ -109,7 +119,7 @@ function CimSummary() {
     setFormSubmittedClicked(false)
     setFormSubmitted(false)
     setModel("o1")
-    dispatch(resetApi())
+    // dispatch(resetApi())
     setSubmitError("")
     setSelectedAnalysis([
       { value: 'all', label: 'Select All' }
@@ -278,7 +288,7 @@ function CimSummary() {
                     onChange={(e) => setThreshold(parseFloat(e.target.value))}
                     >
                     {numbers.map((number) => (
-                        <option value={number}>{number}</option>
+                        <option key={number} value={number}>{number}</option>
                     ))}
                     </select>
                 </div>
