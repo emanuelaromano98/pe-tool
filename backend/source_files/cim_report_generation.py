@@ -4,6 +4,7 @@ import os
 import dotenv
 from pathlib import Path
 dotenv.load_dotenv()
+import re
 
 
 async def cim_generate_report(prompt_1_and_2, prompt_3, prompt_4, file, client, model, send_status_update, title_file):
@@ -75,6 +76,8 @@ async def cim_generate_report(prompt_1_and_2, prompt_3, prompt_4, file, client, 
     await send_status_update("Report generated successfully")
 
     full_report = f"{report_part_1}\n\n{report_part_2}\n\n{report_part_3}"
+
+    full_report = re.sub(r'\d{2}:\d{2}†source', '', full_report)
 
     output_file = output_dir / "cim_report.md"
     with open(output_file, "w") as f:
