@@ -1,2 +1,2 @@
-export const API_URL = "http://34.60.127.145:8000";
-export const WS_URL = "ws://34.60.127.145:8000/ws/status";
+export const API_URL = "https://pe-tool-812205246025.us-central1.run.app";
+export const WS_URL = "wss://pe-tool-812205246025.us-central1.run.app/ws/status";

@@ -29,6 +29,10 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
@@ -247,6 +251,3 @@ async def download_cim_report(format: str):
         )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Report file in {format} format not found")
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

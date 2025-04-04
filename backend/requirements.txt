@@ -1,0 +1,8 @@
+fastapi==0.115.12
+uvicorn==0.34.0
+python-dotenv==1.0.0
+openai==1.58.1
+pydantic==2.11.1
+PyPDF2==3.0.1
+weasyprint==64.1
+python-multipart
